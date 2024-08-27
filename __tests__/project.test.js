@@ -49,7 +49,7 @@ describe("When passed a none existent path", () => {
 });
 
 describe("GET/api", () => {
-  test.only("200 returns all the documentation from the documentation file", () => {
+  test("200 returns all the documentation from the documentation file", () => {
     return request(app)
       .get("/api")
       .expect(200)
