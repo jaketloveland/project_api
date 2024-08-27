@@ -1,7 +1,6 @@
 const { getTopics } = require("./controller");
 const express = require("express");
 
-console.log("app invoked");
 const app = express();
 
 app.get("/api/topics", getTopics);
@@ -11,7 +10,6 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err.stack, "<err.stack");
   res.status(404).send({ msg: "consolemiddleware error hit" });
 });
 
