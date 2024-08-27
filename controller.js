@@ -1,4 +1,4 @@
-const { selectTopics } = require(".//model");
+const { selectTopics, extractAPI } = require(".//model");
 
 exports.getTopics = (req, res, next) => {
   console.log("controller invoked");
@@ -10,4 +10,9 @@ exports.getTopics = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getAPI = (req, res, next) => {
+  const apiData = extractAPI();
+  res.status(200).send(apiData);
 };

@@ -47,3 +47,16 @@ describe("When passed a none existent path", () => {
       });
   });
 });
+
+describe("GET/api", () => {
+  test.only("200 returns all the documentation from the documentation file", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("GET /api");
+        expect(body).toHaveProperty("GET /api/topics");
+        expect(body).toHaveProperty("GET /api/articles");
+      });
+  });
+});

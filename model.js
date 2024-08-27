@@ -5,3 +5,7 @@ exports.selectTopics = () => {
     return topicsData.rows;
   });
 };
+
+exports.extractAPI = () => {
+  return require("./endpoints.json");
+};
