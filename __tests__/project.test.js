@@ -136,16 +136,18 @@ describe("/api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, "<-- body");
-        body.forEach((element) => {
-          expect(element).toHaveProperty("comment_id");
-          expect(element).toHaveProperty("votes");
-          expect(element).toHaveProperty("created_at");
-          expect(element).toHaveProperty("author");
-          expect(element).toHaveProperty("created_at");
-          expect(element).toHaveProperty("votes");
-          expect(element).toHaveProperty("body");
-          expect(element).toHaveProperty("article_id");
+        expect(body.msg.length > 0).toBe(true);
+
+        body.msg.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
+          expect(comment.article_id).toBe(1);
         });
       });
   });
@@ -163,6 +165,41 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body).toEqual({ msg: "Not found" });
+      });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  test("accepts a body with username and body responds with the posted comment", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({ username: "butter_bridge", body: "I really like Wing Chun" })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty("comment_id", 19);
+        expect(body.article).toHaveProperty("body", "I really like Wing Chun");
+        expect(body.article).toHaveProperty("article_id", 2);
+        expect(body.article).toHaveProperty("author", "butter_bridge");
+        expect(body.article).toHaveProperty("votes", 0);
+        expect(body.article).toHaveProperty("created_at");
+      });
+  });
+  test("returns a message if username doensn't exist", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({ username: "bruce_lee", body: "I really like Wing Chun" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input");
+      });
+  });
+  test("returns a message if the article doesn't exist", () => {
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send({ username: "butter_bridge", body: "I really like Wing Chun" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input");
       });
   });
 });
