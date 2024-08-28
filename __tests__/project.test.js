@@ -103,8 +103,6 @@ describe("CORE: GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, "<-- body");
-
         expect(body.length).toBe(13);
 
         body.forEach((element) => {
