@@ -131,3 +131,40 @@ describe("CORE: GET /api/articles", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("gets all comments on an article", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body, "<-- body");
+        body.forEach((element) => {
+          expect(element).toHaveProperty("comment_id");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("body");
+          expect(element).toHaveProperty("article_id");
+        });
+      });
+  });
+  test("returns invalid id when handed invalid id", () => {
+    return request(app)
+      .get("/api/articles/hello/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "invalid id" });
+      });
+  });
+  test("returns id does not exist when handed valid id but it doesnt exist", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Not found" });
+      });
+  });
+});

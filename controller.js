@@ -4,6 +4,7 @@ const {
   selectArticle,
   selectAllArticles,
   addComments,
+  selectComments,
 } = require(".//model");
 
 exports.getTopics = (req, res, next) => {
@@ -44,4 +45,19 @@ exports.getArticles = (req, res, next) => {
       res.status(200).send(allArticlesWithComments);
     });
   });
+};
+
+exports.getComments = (req, res, next) => {
+  const articleID = req.params.article_id;
+  if (!isNaN(Number(articleID))) {
+    selectComments(articleID)
+      .then((selectedComments) => {
+        res.status(200).send(selectedComments);
+      })
+      .catch((err) => {
+        next();
+      });
+  } else {
+    next("invalid id");
+  }
 };

@@ -28,7 +28,6 @@ exports.selectAllArticles = () => {
       "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC"
     )
     .then((allArticles) => {
-      console.log(allArticles.rows, "<--- here");
       return allArticles.rows;
     });
 };
@@ -46,4 +45,19 @@ exports.addComments = (articlesArray) => {
   return Promise.all(promises).then(() => {
     return articlesArray;
   });
+};
+
+exports.selectComments = (articleID) => {
+  return db
+    .query(
+      "SELECT comment_id, votes, created_at, author, body, article_id FROM comments WHERE article_ID = $1 ORDER BY created_at DESC",
+      [articleID]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject("Not Found");
+      } else {
+        return rows;
+      }
+    });
 };
