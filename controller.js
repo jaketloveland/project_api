@@ -1,4 +1,10 @@
-const { selectTopics, extractAPI, selectArticle } = require(".//model");
+const {
+  selectTopics,
+  extractAPI,
+  selectArticle,
+  selectAllArticles,
+  addComments,
+} = require(".//model");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -30,4 +36,12 @@ exports.getArticle = (req, res, next) => {
   } else {
     next("invalid id");
   }
+};
+
+exports.getArticles = (req, res, next) => {
+  selectAllArticles().then((allArticles) => {
+    addComments(allArticles).then((allArticlesWithComments) => {
+      res.status(200).send(allArticlesWithComments);
+    });
+  });
 };
