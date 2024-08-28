@@ -14,7 +14,6 @@ exports.getTopics = (req, res, next) => {
       res.status(200).send(topicsData);
     })
     .catch((err) => {
-      console.log("this is triiped");
       next(err);
     });
 };
@@ -72,7 +71,6 @@ exports.postComment = (req, res, next) => {
       res.status(201).send({ article: postedArticle[0] });
     })
     .catch((err) => {
-      console.log(err, "<-- err");
       next(err);
     });
 };

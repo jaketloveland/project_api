@@ -29,7 +29,6 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
   if (err === "invalid id") {
     res.status(400).send({ msg: "invalid id" });
   } else if (err === "invalid input") {
