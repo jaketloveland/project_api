@@ -5,6 +5,7 @@ const {
   selectAllArticles,
   addComments,
   selectComments,
+  writeContent,
 } = require(".//model");
 
 exports.getTopics = (req, res, next) => {
@@ -13,7 +14,6 @@ exports.getTopics = (req, res, next) => {
       res.status(200).send(topicsData);
     })
     .catch((err) => {
-      console.log("this is triiped");
       next(err);
     });
 };
@@ -52,7 +52,7 @@ exports.getComments = (req, res, next) => {
   if (!isNaN(Number(articleID))) {
     selectComments(articleID)
       .then((selectedComments) => {
-        res.status(200).send(selectedComments);
+        res.status(200).send({ msg: selectedComments });
       })
       .catch((err) => {
         next();
@@ -60,4 +60,17 @@ exports.getComments = (req, res, next) => {
   } else {
     next("invalid id");
   }
+};
+
+exports.postComment = (req, res, next) => {
+  const { username, body } = req.body;
+  const article_id = Number(req.params.article_id);
+
+  writeContent(username, body, article_id)
+    .then((postedArticle) => {
+      res.status(201).send({ article: postedArticle[0] });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
