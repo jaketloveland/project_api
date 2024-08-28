@@ -2,7 +2,7 @@ const seed = require("../db/seeds/seed");
 const request = require("supertest");
 const app = require("../app");
 const db = require("../db/connection");
-
+const jestSorted = require("jest-sorted");
 const {
   articleData,
   commentData,
@@ -93,6 +93,41 @@ describe("GET /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body).toEqual({ msg: "Not found" });
+      });
+  });
+});
+
+describe("CORE: GET /api/articles", () => {
+  test("returns all the objects from api artcles", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body, "<-- body");
+
+        expect(body.length).toBe(13);
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+
+  test("returns all the objects from api in descending order based on date", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSortedBy("created_at", {
+          descending: true,
+        });
       });
   });
 });
