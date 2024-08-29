@@ -8,7 +8,6 @@ const {
   writeContent,
   ammendVotes,
 } = require(".//model");
-const { patch } = require("./app");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
