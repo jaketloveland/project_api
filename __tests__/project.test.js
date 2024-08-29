@@ -242,3 +242,41 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  test("comment should be removed, and return an empty object for a body", () => {
+    return request(app)
+      .delete("/api/comments/1/")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            const commentOne = body.msg.filter(
+              (comment) => comment.comment_id === 1
+            );
+
+            expect(commentOne.length).toBe(0);
+          });
+      });
+  });
+  test("returns an error when id is not a number", () => {
+    return request(app)
+      .delete("/api/comments/not_a_number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Invalid input" });
+      });
+  });
+  test("returns an error when id is not found", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "not found" });
+      });
+  });
+});
