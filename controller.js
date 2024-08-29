@@ -8,6 +8,7 @@ const {
   writeContent,
   ammendVotes,
   removeComment,
+  extractUsers,
 } = require(".//model");
 
 exports.getTopics = (req, res, next) => {
@@ -111,4 +112,10 @@ exports.deleteComment = (req, res, next) => {
   } else {
     next("invalid input");
   }
+};
+
+exports.getUsers = (req, res, next) => {
+  extractUsers().then((users) => {
+    res.status(200).send({ users: users });
+  });
 };

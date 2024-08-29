@@ -90,8 +90,7 @@ exports.ammendVotes = (votes, article_id) => {
       } else {
         return patchedArticle.rows[0];
       }
-    })
-    .catch((err) => {});
+    });
 };
 
 exports.removeComment = (commentID) => {
@@ -104,4 +103,11 @@ exports.removeComment = (commentID) => {
 
       return output;
     });
+};
+
+exports.extractUsers = () => {
+  return db.query("SELECT * FROM users").then((users) => {
+    console.log(users.rows);
+    return users.rows;
+  });
 };
