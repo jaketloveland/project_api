@@ -5,6 +5,7 @@ const {
   getArticles,
   getComments,
   postComment,
+  patchVotes,
 } = require("./controller");
 const express = require("express");
 
@@ -24,9 +25,10 @@ app.get("/api/articles/:article_id/comments", getComments);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
-app.use((req, res, next) => {
-  res.status(404).send({ msg: "Not found" });
-});
+app.patch("/api/articles/:article_id", patchVotes),
+  app.use((req, res, next) => {
+    res.status(404).send({ msg: "Not found" });
+  });
 
 app.use((err, req, res, next) => {
   if (err === "invalid id") {
