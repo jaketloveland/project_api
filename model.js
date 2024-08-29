@@ -91,7 +91,17 @@ exports.ammendVotes = (votes, article_id) => {
         return patchedArticle.rows[0];
       }
     })
-    .catch((err) => {
-      console.log(err, "<-- err");
+    .catch((err) => {});
+};
+
+exports.removeComment = (commentID) => {
+  return db
+    .query("DELETE FROM comments WHERE comment_id = $1", [commentID])
+    .then((output) => {
+      if (output.rowCount === 0) {
+        return "not found";
+      }
+
+      return output;
     });
 };

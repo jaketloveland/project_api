@@ -7,6 +7,7 @@ const {
   selectComments,
   writeContent,
   ammendVotes,
+  removeComment,
 } = require(".//model");
 
 exports.getTopics = (req, res, next) => {
@@ -92,4 +93,22 @@ exports.patchVotes = (req, res, next) => {
     next("invalid input");
   }
   // add else in case its not a number
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  if (!isNaN(Number(comment_id))) {
+    removeComment(comment_id)
+      .then((deletedComment) => {
+        if (deletedComment === "not found") {
+          next("not found");
+        } else {
+          res.status(204).send({});
+        }
+      })
+      .catch((err) => {});
+  } else {
+    next("invalid input");
+  }
 };
