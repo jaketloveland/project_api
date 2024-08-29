@@ -203,3 +203,42 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("updates the article specified by the amoubt of votes passed in an object", () => {
+    return request(app)
+      .patch("/api/articles/4/")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.updatedArticle.votes).toBe(1);
+      });
+  });
+  test("returns an error when passed an invalid article id", () => {
+    return request(app)
+      .patch("/api/articles/not_an_id/")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Invalid input" });
+      });
+  });
+  test("returns an error when vote is not a number", () => {
+    return request(app)
+      .patch("/api/articles/4/")
+      .send({ inc_votes: "invalid vote" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Invalid input" });
+      });
+  });
+  test("returns an error when passed an article that does not exist", () => {
+    return request(app)
+      .patch("/api/articles/9999/")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "not found" });
+      });
+  });
+});

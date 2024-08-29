@@ -77,3 +77,21 @@ exports.writeContent = (author, body, article_id) => {
       }
     });
 };
+
+exports.ammendVotes = (votes, article_id) => {
+  return db
+    .query(
+      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
+      [votes, article_id]
+    )
+    .then((patchedArticle) => {
+      if (patchedArticle.rows.length === 0) {
+        return "not found";
+      } else {
+        return patchedArticle.rows[0];
+      }
+    })
+    .catch((err) => {
+      console.log(err, "<-- err");
+    });
+};

@@ -6,7 +6,9 @@ const {
   addComments,
   selectComments,
   writeContent,
+  ammendVotes,
 } = require(".//model");
+const { patch } = require("./app");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -73,4 +75,22 @@ exports.postComment = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.patchVotes = (req, res, next) => {
+  const newVotes = req.body.inc_votes;
+  const article_id = req.params.article_id;
+
+  if (!isNaN(Number(newVotes)) && !isNaN(Number(article_id))) {
+    ammendVotes(newVotes, article_id).then((patchedArticle) => {
+      if (patchedArticle === "not found") {
+        next("not found");
+      } else {
+        res.status(200).send({ updatedArticle: patchedArticle });
+      }
+    });
+  } else {
+    next("invalid input");
+  }
+  // add else in case its not a number
 };
