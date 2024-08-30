@@ -38,7 +38,7 @@ describe("/api/topics", () => {
   });
 });
 
-describe("When passed a none existent path", () => {
+describe("api/ When passed a none existent path", () => {
   test("get 404: returns a string if handed a none existent path", () => {
     return request(app)
       .get("/api/notapath")
@@ -97,7 +97,7 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("CORE: GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("returns all the objects from api artcles", () => {
     return request(app)
       .get("/api/articles")
@@ -294,6 +294,139 @@ describe("api/users", () => {
           expect(user).toHaveProperty("name");
           expect(user).toHaveProperty("avatar_url");
         });
+      });
+  });
+});
+
+describe("/api/articles? sort and order", () => {
+  test("returns an array of articles sorted by created_at when passed /api/articles?sort_by&order", () => {
+    return request(app)
+      .get("/api/articles?sort_by&order")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(13);
+        expect(body).toBeSortedBy("created_at", {
+          descending: true,
+        });
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("returns an array of artices sorted by titles descending when passed /api/articles?sort_by=title&order=desc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(13);
+        expect(body).toBeSortedBy("title", {
+          descending: true,
+        });
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("returns an array of artices sorted by topic ascending when passed /api/articles?sort_by=title&order=asc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(13);
+        expect(body).toBeSortedBy("topic", {
+          descending: false,
+        });
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("returns an error when passed invalid sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=not_a_value&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input");
+      });
+  });
+  test("returns an error when passed invalid order by", () => {
+    return request(app)
+      .get("/api/articles?sort_by==incorrectparam")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input");
+      });
+  });
+});
+
+describe("GET /api/articles (topic query)", () => {
+  test("returns an array of topics that match mitch", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        body.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("returns not found if given none existent topic", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("returns all articles if no parameter given ", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+});
+describe("GET /api/articles/:article_id (comment count)", () => {
+  test("An article response object should also include a comment_count", () => {
+    return request(app)
+      .get("/api/articles/5")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("author");
+        expect(body).toHaveProperty("title");
+        expect(body).toHaveProperty("article_id");
+        expect(body).toHaveProperty("body");
+        expect(body).toHaveProperty("topic");
+        expect(body).toHaveProperty("created_at");
+        expect(body).toHaveProperty("votes");
+        expect(body).toHaveProperty("article_img_url");
+        expect(body).toHaveProperty("comment_count");
+        expect(body.comment_count).toBe("2");
       });
   });
 });

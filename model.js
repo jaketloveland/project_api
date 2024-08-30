@@ -12,7 +12,10 @@ exports.extractAPI = () => {
 
 exports.selectArticle = (id) => {
   return db
-    .query("SELECT * FROM articles WHERE article_id=$1", [id])
+    .query(
+      "SELECT articles.*, (select count(*) as comment_count from comments where article_id = $1) FROM articles WHERE articles.article_id=$1  ",
+      [id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject("Not Found");
@@ -22,14 +25,58 @@ exports.selectArticle = (id) => {
     });
 };
 
-exports.selectAllArticles = () => {
-  return db
-    .query(
-      "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC"
-    )
-    .then((allArticles) => {
-      return allArticles.rows;
-    });
+exports.selectAllArticles = (option, input1, input2) => {
+  // Filter by topic
+  if (option === "Filter topic") {
+    return db
+      .query(
+        "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles WHERE topic = $1 ORDER BY created_at DESC",
+        [input1]
+      )
+      .then((filteredTopics) => {
+        if (filteredTopics.rows.length === 0) {
+          return Promise.reject("not found");
+        } else {
+          return filteredTopics.rows;
+        }
+      });
+
+    // sort by column and order
+  } else if (option === "sort by column") {
+    const column = input1 || "created_at";
+    const order = input2 || "DESC";
+
+    const greenlistColumns = [
+      "author",
+      "title",
+      "article_id",
+      "topic",
+      "created_at",
+      "votes",
+    ];
+
+    const greenListOrder = ["asc", "desc", "ASC", "DESC"];
+
+    if (greenlistColumns.includes(column) && greenListOrder.includes(order)) {
+      const query = `SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY ${column} ${order}`;
+
+      return db.query(query).then((articlesSorted) => {
+        return articlesSorted.rows;
+      });
+    } else {
+      return Promise.reject("invalid input");
+    }
+
+    // default return all articles
+  } else {
+    return db
+      .query(
+        "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC"
+      )
+      .then((allArticles) => {
+        return allArticles.rows;
+      });
+  }
 };
 
 exports.addComments = (articlesArray) => {
@@ -107,7 +154,6 @@ exports.removeComment = (commentID) => {
 
 exports.extractUsers = () => {
   return db.query("SELECT * FROM users").then((users) => {
-    console.log(users.rows);
     return users.rows;
   });
 };
