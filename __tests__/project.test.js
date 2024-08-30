@@ -297,3 +297,88 @@ describe("api/users", () => {
       });
   });
 });
+
+describe("/api/articles?sort_by= created_at&order=desc", () => {
+  test("returns an array of artices sorted by created_at when passed /api/articles?sort_by&prder", () => {
+    return request(app)
+      .get("/api/articles?sort_by&order")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(13);
+        expect(body).toBeSortedBy("created_at", {
+          descending: true,
+        });
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("returns an array of artices sorted by titles descending when passed /api/articles?sort_by=title&order=desc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(13);
+        expect(body).toBeSortedBy("title", {
+          descending: true,
+        });
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("returns an array of artices sorted by topic ascending when passed /api/articles?sort_by=title&order=asc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(13);
+        expect(body).toBeSortedBy("topic", {
+          descending: false,
+        });
+
+        body.forEach((element) => {
+          expect(element).toHaveProperty("author");
+          expect(element).toHaveProperty("title");
+          expect(element).toHaveProperty("article_id");
+          expect(element).toHaveProperty("topic");
+          expect(element).toHaveProperty("created_at");
+          expect(element).toHaveProperty("votes");
+          expect(element).toHaveProperty("article_img_url");
+          expect(element).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("returns an error when passed invalid sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=not_a_value&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input");
+      });
+  });
+  test("returns an error when passed invalid order by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=not_a_value&order=incorrectparam")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input");
+      });
+  });
+});

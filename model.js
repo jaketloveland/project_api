@@ -32,6 +32,32 @@ exports.selectAllArticles = () => {
     });
 };
 
+exports.selectAllArticlesWithParams = (sort_by, order) => {
+  sort_by = sort_by || "created_at";
+  order = order || "DESC";
+
+  const greenlistSortBy = [
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+  ];
+
+  const greenListOrder = ["asc", "desc", "ASC", "DESC"];
+
+  if (greenlistSortBy.includes(sort_by) && greenListOrder.includes(order)) {
+    const query = `SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY ${sort_by} ${order}`;
+
+    return db.query(query).then((articlesSorted) => {
+      return articlesSorted.rows;
+    });
+  } else {
+    return Promise.reject("invalid input");
+  }
+};
+
 exports.addComments = (articlesArray) => {
   const promises = articlesArray.map((article) => {
     const articleID = article.article_id;
@@ -107,7 +133,6 @@ exports.removeComment = (commentID) => {
 
 exports.extractUsers = () => {
   return db.query("SELECT * FROM users").then((users) => {
-    console.log(users.rows);
     return users.rows;
   });
 };

@@ -9,6 +9,7 @@ const {
   ammendVotes,
   removeComment,
   extractUsers,
+  selectAllArticlesWithParams,
 } = require(".//model");
 
 exports.getTopics = (req, res, next) => {
@@ -43,11 +44,40 @@ exports.getArticle = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectAllArticles().then((allArticles) => {
-    addComments(allArticles).then((allArticlesWithComments) => {
-      res.status(200).send(allArticlesWithComments);
+  const queries = Object.keys(req.query);
+
+  let sort_by = undefined;
+  let order = undefined;
+
+  if (queries.includes("sort_by")) {
+    sort_by = req.query.sort_by;
+  }
+  if (queries.includes("order")) {
+    order = req.query.order;
+  }
+
+  if (sort_by !== undefined || order !== undefined) {
+    // we are here
+
+    selectAllArticlesWithParams(sort_by, order)
+      .then((articlesSorted) => {
+        console.log("activated?");
+
+        addComments(articlesSorted).then((articlesSortedWithComments) => {
+          res.status(200).send(articlesSortedWithComments);
+        });
+      })
+      .catch((err) => {
+        console.log("error hit here rejected");
+        next("invalid input");
+      });
+  } else {
+    selectAllArticles().then((allArticles) => {
+      addComments(allArticles).then((allArticlesWithComments) => {
+        res.status(200).send(allArticlesWithComments);
+      });
     });
-  });
+  }
 };
 
 exports.getComments = (req, res, next) => {
@@ -93,7 +123,6 @@ exports.patchVotes = (req, res, next) => {
   } else {
     next("invalid input");
   }
-  // add else in case its not a number
 };
 
 exports.deleteComment = (req, res, next) => {
