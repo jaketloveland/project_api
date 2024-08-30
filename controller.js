@@ -61,14 +61,11 @@ exports.getArticles = (req, res, next) => {
 
     selectAllArticlesWithParams(sort_by, order)
       .then((articlesSorted) => {
-        console.log("activated?");
-
         addComments(articlesSorted).then((articlesSortedWithComments) => {
           res.status(200).send(articlesSortedWithComments);
         });
       })
       .catch((err) => {
-        console.log("error hit here rejected");
         next("invalid input");
       });
   } else {
