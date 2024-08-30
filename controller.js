@@ -11,6 +11,7 @@ const {
   extractUsers,
   selectAllArticlesWithParams,
 } = require(".//model");
+const topics = require("./db/data/test-data/topics");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -46,20 +47,38 @@ exports.getArticle = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
   const queries = Object.keys(req.query);
 
-  let sort_by = undefined;
-  let order = undefined;
-
-  if (queries.includes("sort_by")) {
-    sort_by = req.query.sort_by;
+  // Default no params given
+  if (queries.length === 0) {
+    selectAllArticles().then((allArticles) => {
+      addComments(allArticles).then((allArticlesWithComments) => {
+        res.status(200).send(allArticlesWithComments);
+      });
+    });
+    // Filter by topic
+  } else if (
+    queries.length === 1 &&
+    queries.includes("topic") &&
+    req.query.topic.length
+  ) {
+    selectAllArticles("Filter topic", req.query.topic)
+      .then((filteredArticles) => {
+        res.status(200).send(filteredArticles);
+      })
+      .catch((err) => {
+        next("not found");
+      });
   }
-  if (queries.includes("order")) {
-    order = req.query.order;
-  }
+  // sort by column
 
-  if (sort_by !== undefined || order !== undefined) {
-    // we are here
+  if (
+    queries.length > 0 &&
+    queries.length <= 3 &&
+    queries.includes("sort_by")
+  ) {
+    const column = req.query.sort_by;
+    const order = req.query.order;
 
-    selectAllArticlesWithParams(sort_by, order)
+    selectAllArticles("sort by column", column, order)
       .then((articlesSorted) => {
         addComments(articlesSorted).then((articlesSortedWithComments) => {
           res.status(200).send(articlesSortedWithComments);
@@ -68,12 +87,6 @@ exports.getArticles = (req, res, next) => {
       .catch((err) => {
         next("invalid input");
       });
-  } else {
-    selectAllArticles().then((allArticles) => {
-      addComments(allArticles).then((allArticlesWithComments) => {
-        res.status(200).send(allArticlesWithComments);
-      });
-    });
   }
 };
 

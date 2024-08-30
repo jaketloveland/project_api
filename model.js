@@ -22,39 +22,57 @@ exports.selectArticle = (id) => {
     });
 };
 
-exports.selectAllArticles = () => {
-  return db
-    .query(
-      "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC"
-    )
-    .then((allArticles) => {
-      return allArticles.rows;
-    });
-};
+exports.selectAllArticles = (option, input1, input2) => {
+  // Filter by topic
+  if (option === "Filter topic") {
+    return db
+      .query(
+        "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles WHERE topic = $1 ORDER BY created_at DESC",
+        [input1]
+      )
+      .then((filteredTopics) => {
+        if (filteredTopics.rows.length === 0) {
+          return Promise.reject("not found");
+        } else {
+          return filteredTopics.rows;
+        }
+      });
 
-exports.selectAllArticlesWithParams = (sort_by, order) => {
-  sort_by = sort_by || "created_at";
-  order = order || "DESC";
+    // sort by column and order
+  } else if (option === "sort by column") {
+    const column = input1 || "created_at";
+    const order = input2 || "DESC";
 
-  const greenlistSortBy = [
-    "author",
-    "title",
-    "article_id",
-    "topic",
-    "created_at",
-    "votes",
-  ];
+    const greenlistColumns = [
+      "author",
+      "title",
+      "article_id",
+      "topic",
+      "created_at",
+      "votes",
+    ];
 
-  const greenListOrder = ["asc", "desc", "ASC", "DESC"];
+    const greenListOrder = ["asc", "desc", "ASC", "DESC"];
 
-  if (greenlistSortBy.includes(sort_by) && greenListOrder.includes(order)) {
-    const query = `SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY ${sort_by} ${order}`;
+    if (greenlistColumns.includes(column) && greenListOrder.includes(order)) {
+      const query = `SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY ${column} ${order}`;
 
-    return db.query(query).then((articlesSorted) => {
-      return articlesSorted.rows;
-    });
+      return db.query(query).then((articlesSorted) => {
+        return articlesSorted.rows;
+      });
+    } else {
+      return Promise.reject("invalid input");
+    }
+
+    // default return all articles
   } else {
-    return Promise.reject("invalid input");
+    return db
+      .query(
+        "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC"
+      )
+      .then((allArticles) => {
+        return allArticles.rows;
+      });
   }
 };
 

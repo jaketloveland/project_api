@@ -38,7 +38,7 @@ describe("/api/topics", () => {
   });
 });
 
-describe("When passed a none existent path", () => {
+describe("api/ When passed a none existent path", () => {
   test("get 404: returns a string if handed a none existent path", () => {
     return request(app)
       .get("/api/notapath")
@@ -97,7 +97,7 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("CORE: GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("returns all the objects from api artcles", () => {
     return request(app)
       .get("/api/articles")
@@ -298,8 +298,8 @@ describe("api/users", () => {
   });
 });
 
-describe("/api/articles?sort_by= created_at&order=desc", () => {
-  test("returns an array of artices sorted by created_at when passed /api/articles?sort_by&prder", () => {
+describe("/api/articles? sort and order", () => {
+  test("returns an array of articles sorted by created_at when passed /api/articles?sort_by&order", () => {
     return request(app)
       .get("/api/articles?sort_by&order")
       .expect(200)
@@ -375,10 +375,39 @@ describe("/api/articles?sort_by= created_at&order=desc", () => {
   });
   test("returns an error when passed invalid order by", () => {
     return request(app)
-      .get("/api/articles?sort_by=not_a_value&order=incorrectparam")
+      .get("/api/articles?sort_by==incorrectparam")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid input");
+      });
+  });
+});
+
+describe("GET /api/articles (topic query)", () => {
+  test("returns an array of topics that match mitch", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        body.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("returns not found if given none existent topic", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("returns all articles if no parameter given ", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
       });
   });
 });
