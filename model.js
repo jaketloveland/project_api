@@ -12,7 +12,10 @@ exports.extractAPI = () => {
 
 exports.selectArticle = (id) => {
   return db
-    .query("SELECT * FROM articles WHERE article_id=$1", [id])
+    .query(
+      "SELECT articles.*, (select count(*) as comment_count from comments where article_id = $1) FROM articles WHERE articles.article_id=$1  ",
+      [id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject("Not Found");
